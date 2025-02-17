@@ -227,10 +227,7 @@ Repite los mismos pasos para calcular el precio medio de alquiler, pero agrupand
 db.listingsAndReviews.aggregate([
   {
     $group: {
-      _id: {
-        country: "$address.country",
-        bedrooms: "$bedrooms",
-      },
+      _id: "$address.country",
       average_price: { $avg: "$price" },
       rooms: { $sum: 1 },
     },
@@ -238,8 +235,7 @@ db.listingsAndReviews.aggregate([
   {
     $project: {
       _id: 0,
-      country: "$_id.country",
-      bedrooms: "$_id.bedrooms",
+      country: "$_id",
       average_price: { $round: [{ $toDouble: "$average_price" }, 2] },
       rooms: 1,
     },
