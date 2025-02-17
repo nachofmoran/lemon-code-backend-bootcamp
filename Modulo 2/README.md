@@ -173,11 +173,42 @@ db.listingsAndReviews.aggregate([
 ]);
 ```
 
-### Precio medio por país
+## Opcional
+
+### Precio medio de alquiler en España
+
+Queremos saber el precio medio de alquiler de Airbnb en España.
 
 ```js
 db.listingsAndReviews.aggregate([
-  { $group: { _id: "$address.country", average_price: { $avg: "$price" } } },
+  { $match: { "address.country": "Spain" } },
+  {
+    $group: {
+      _id: null,
+      average_price: { $avg: "$price" },
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      average_price: { $round: [{ $toDouble: "$average_price" }, 2] },
+    },
+  },
+]);
+```
+
+### Precio medio de alquiler por países
+
+¿Y si quisiéramos hacer como el anterior, pero sacarlo por países?
+
+```js
+db.listingsAndReviews.aggregate([
+  {
+    $group: {
+      _id: "$address.country",
+      average_price: { $avg: "$price" },
+    },
+  },
   {
     $project: {
       _id: 0,
@@ -187,6 +218,36 @@ db.listingsAndReviews.aggregate([
   },
 ]);
 ```
+
+### Precio medio de alquiler por países y número de habitaciones
+
+Repite los mismos pasos para calcular el precio medio de alquiler, pero agrupando también por número de habitaciones.
+
+```js
+db.listingsAndReviews.aggregate([
+  {
+    $group: {
+      _id: {
+        country: "$address.country",
+        bedrooms: "$bedrooms",
+      },
+      average_price: { $avg: "$price" },
+      rooms: { $sum: 1 },
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      country: "$_id.country",
+      bedrooms: "$_id.bedrooms",
+      average_price: { $round: [{ $toDouble: "$average_price" }, 2] },
+      rooms: 1,
+    },
+  },
+]);
+```
+
+## Desafío
 
 ### Top 5 de alojamientos más caros en España
 
