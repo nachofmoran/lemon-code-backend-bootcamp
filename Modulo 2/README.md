@@ -81,6 +81,71 @@ db.listingsAndReviews.find(
 );
 ```
 
+### Estamos entre ir a Barcelona o a Portugal
+
+- Queremos que el precio sea barato (50 $ o menos) y buen rating (igual o superior a 88).
+- Sólo muestra: nombre, precio, camas, baños, rating, localidad y país.
+
+```js
+db.listingsAndReviews.find(
+  {
+    beds: { $eq: 4 },
+    bathrooms: { $gte: 2 },
+    amenities: { $all: ["Wifi", "Pets allowed"] },
+    $or: [{ "address.country": "Portugal" }, { "address.market": "Barcelona" }],
+    price: { $lte: 50 },
+    "review_scores.review_scores_rating": { $gte: 88 },
+  },
+  {
+    _id: 0,
+    name: 1,
+    price: 1,
+    beds: 1,
+    bathrooms: 1,
+    "review_scores.review_scores_rating": 1,
+    "address.country": 1,
+    "address.market": 1,
+  }
+);
+```
+
+### Queremos un superhost sin depósito de seguridad
+
+- 4 camas y al menos 2 baños.
+- Debe tener Wifi y permitir mascotas.
+- El huésped debe ser superhost (`host.host_is_superhost`).
+- No debe haber depósito de seguridad (`security_deposit`).
+- Destinos: Portugal o Barcelona.
+- Precio máximo de 50 $ y rating igual o superior a 88.
+- Sólo muestra: nombre, precio, camas, baños, rating, superhost, depósito de seguridad, localidad y país.
+
+```js
+db.listingsAndReviews.find(
+  {
+    beds: { $eq: 4 },
+    bathrooms: { $gte: 2 },
+    amenities: { $all: ["Wifi", "Pets allowed"] },
+    $or: [{ "address.country": "Portugal" }, { "address.market": "Barcelona" }],
+    price: { $lte: 50 },
+    "review_scores.review_scores_rating": { $gte: 88 },
+    "host.host_is_superhost": { $eq: true },
+    security_deposit: { $eq: 0 },
+  },
+  {
+    _id: 0,
+    name: 1,
+    price: 1,
+    beds: 1,
+    bathrooms: 1,
+    "review_scores.review_scores_rating": 1,
+    security_deposit: 1,
+    "host.host_is_superhost": 1,
+    "address.country": 1,
+    "address.market": 1,
+  }
+);
+```
+
 ## Agregaciones
 
 ### Alojamientos en España con nombre, localidad y precio
